@@ -1,0 +1,86 @@
+---
+title       : Stock Viewer
+subtitle    : Presentation of Stock Viewer application
+author      : Hideh Tobita
+job         : Atibot Data Analysis Laboratory
+logo        : dragon_logo.png
+url:
+  assets      : ./assets
+framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
+highlighter : highlight.js  # {highlight.js, prettify, highlight}
+hitheme     : tomorrow      # 
+widgets     : [mathjax, bootstrap,shiny, interactive]     # {mathjax, quiz, bootstrap}
+mode        : selfcontained # {standalone, draft}
+knit        : slidify::knit2slides
+---
+
+## Read-And-Delete
+
+1. Edit YAML front matter
+2. Write using R Markdown
+3. Use an empty line followed by three dashes to separate slides!
+
+--- .class #id 
+
+## Slide 2
+
+--- &interactive
+
+## Test
+
+```{r opts.label = 'shiny'}
+slidifyUI(
+  sidebarPanel(
+    selectInput('sex', 'Choose Sex', c('Male', 'Female')),
+    selectInput('type', 'Choose Type',
+      c('multiBarChart', 'multiBarHorizontalChart')
+    )
+  ),
+  mainPanel(
+    tags$div(id = 'nvd3plot', class='shiny-html-output nvd3 rChart')
+  )
+)
+```
+
+---
+
+## Stock Viewer application
+
+```{r opts.label = 'shiny'}
+slidifyUI(#fluidPage(
+  #titlePanel("Stock Viewer"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      h4("According to the checkbox(On/Off), 
+         create and display a monthly stock price chart or
+         a monthly return chart of the company specified with it's SYMBOL.
+         Information will be collected from Yahoo! in the period from 
+         1998-01-01 to 2014-10-31"),
+      
+      textInput("symbol", label = "Enter SYMBOL", value = "SBUX"),
+      hr(),
+      actionButton("goButton", "Go!"),
+      #       hr(),
+      #       fluidRow(column(10, verbatimTextOutput("value"))),
+      h4("Click the button to update the chart of the sybmol you enter."),
+      
+      hr(),
+      checkboxInput("checkbox", label = "Price chart (Off) or Return chart (On)", value = FALSE),
+      #       hr(),
+      #       fluidRow(column(3, verbatimTextOutput("check")))
+      h4("If checked (On), a chart of monthly continuously compounded returns is displayed 
+         along with the expected anual return and volatility in %.
+         The red horizaontal line shows the mean of monthly returns.")
+      ),
+    
+    mainPanel(
+      plotOutput("chart")
+      )
+    )
+  )#)
+```
+
+---
+
+## End

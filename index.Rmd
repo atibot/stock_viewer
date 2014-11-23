@@ -2,59 +2,47 @@
 title       : Stock Viewer
 subtitle    : Presentation of Stock Viewer application
 author      : Hideh Tobita
-job         : Atibot Data Analysis Laboratory
+job         : Atibot Data Analysis Laboratory (November, 23, 2014)
 logo        : dragon_logo.png
 url:
   assets      : ./assets
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      # 
-widgets     : [mathjax, bootstrap,shiny, interactive]     # {mathjax, quiz, bootstrap}
+widgets     : [mathjax, bootstrap, shiny, interactive]     # {mathjax, quiz, bootstrap}
 mode        : selfcontained # {standalone, draft}
 knit        : slidify::knit2slides
 ---
 
-## Read-And-Delete
+## Stock Viewer application summary
 
-1. Edit YAML front matter
-2. Write using R Markdown
-3. Use an empty line followed by three dashes to separate slides!
+This application will get the monthly stock prices of the company specified with its SYMBOL, and create a time series chart of prices or returns depending on the check box. Information will be collected from Yahoo! online in the period from 1998-01-01 to 2014-10-31. When the check box is Off (initial), the monthly adjusted closing prices will be displayed. If On, the monthly continuously compounded returns will be displayed along with the expected annual return and volatility in %.
 
---- .class #id 
+The next three slides show 
 
-## Slide 2
+     1. Menu layout
+     2. Stock Price Chart Example (SBUX) 
+     3. Stock Return Chart Example (SBUX)
 
---- &interactive
 
-## Test
 
-```{r opts.label = 'shiny'}
-slidifyUI(
-  sidebarPanel(
-    selectInput('sex', 'Choose Sex', c('Male', 'Female')),
-    selectInput('type', 'Choose Type',
-      c('multiBarChart', 'multiBarHorizontalChart')
-    )
-  ),
-  mainPanel(
-    tags$div(id = 'nvd3plot', class='shiny-html-output nvd3 rChart')
-  )
-)
-```
+The real interactive application can be accessed at the following link. 
+
+  Try it!   [Stock Viewer](https://atibot.shinyapps.io/project/)
 
 ---
 
-## Stock Viewer application
-
+## 1. Menu layout
+The left side menu looks below. The chart will be shown in the right space.
 ```{r opts.label = 'shiny'}
 slidifyUI(#fluidPage(
   #titlePanel("Stock Viewer"),
   
-  sidebarLayout(
+  #sidebarLayout(
     sidebarPanel(
       h4("According to the checkbox(On/Off), 
          create and display a monthly stock price chart or
-         a monthly return chart of the company specified with it's SYMBOL.
+         a monthly return chart of the company specified with its SYMBOL.
          Information will be collected from Yahoo! in the period from 
          1998-01-01 to 2014-10-31"),
       
@@ -63,24 +51,73 @@ slidifyUI(#fluidPage(
       actionButton("goButton", "Go!"),
       #       hr(),
       #       fluidRow(column(10, verbatimTextOutput("value"))),
-      h4("Click the button to update the chart of the sybmol you enter."),
+      h5("Click the button to update the chart of the sybmol you enter."),
       
       hr(),
       checkboxInput("checkbox", label = "Price chart (Off) or Return chart (On)", value = FALSE),
       #       hr(),
       #       fluidRow(column(3, verbatimTextOutput("check")))
-      h4("If checked (On), a chart of monthly continuously compounded returns is displayed 
-         along with the expected anual return and volatility in %.
+      h5("If checked (On), a chart of monthly continuously compounded returns is displayed 
+         along with the expected annual return and volatility in %.
          The red horizaontal line shows the mean of monthly returns.")
       ),
     
     mainPanel(
       plotOutput("chart")
       )
-    )
+   #)
   )#)
+```
+
+
+---
+
+## 2. Stock Price Chart Example (SBUX) 
+
+The adjusted closing prices are plotted as below.
+
+``` {r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.width=14}
+# Define server logic 
+library(shiny)
+# Load libraries
+library(tseries)
+library(PerformanceAnalytics)
+
+#price chart for SBUX
+symbol <- "SBUX"
+
+prices <- get.hist.quote(instrument=symbol, start="1998-01-01",
+                         end="2014-10-31", quote="AdjClose",
+                         provider="yahoo", origin="1970-01-01",
+                         compression="m", retclass="zoo")
+
+
+names(prices) <- symbol #set a column name for the symbol
+
+chart.TimeSeries(prices, legend.loc="bottom",
+                 main=paste("[", symbol, "]",
+                            "Adjusted Closing Prices"),
+                 ylab="Prices ($)", xlab="Month Year",
+                 date.format = "%Y", lwd=2, col="blue")
 ```
 
 ---
 
-## End
+## 3. Stock Return Chart Example (SBUX)
+
+The continuously compounded returns are plotted as below.
+
+``` {r, echo=FALSE, warning=FALSE, message=FALSE, results='hide', fig.width=14}
+returns <-diff(log(prices)) #cc return = log(prices)[i] - log(prices)[i-1])
+chart.TimeSeries(returns, legend.loc="bottom",
+                 main=paste("Monthly Continuously Compounded Returns \n",
+                            "[", symbol, "]", 
+                            "Expected anual return =",
+                            round(mean(returns)*12*100, 2),"%",
+                            "Volatility =",
+                            round(sd(returns)*sqrt(12)*100, 2),"%"),
+                 ylab="Returns", xlab="Month Year",
+                 date.format = "%Y", lwd=2, col="blue")
+abline(h=mean(returns), col="red") #expected monthly return in red line
+```
+

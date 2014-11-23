@@ -5,7 +5,7 @@ author      : Hideh Tobita
 job         : Atibot Data Analysis Laboratory (November, 23, 2014)
 logo        : dragon_logo.png
 url:
-  assets      : ../assets
+  assets      : ./assets
 framework   : io2012        # {io2012, html5slides, shower, dzslides, ...}
 highlighter : highlight.js  # {highlight.js, prettify, highlight}
 hitheme     : tomorrow      # 
